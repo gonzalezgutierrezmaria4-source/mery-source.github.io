@@ -1,0 +1,457 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salem 🐈‍⬛</title>
+<style>
+:root {
+  --green: #76d69a;
+  --dark: #27243a;
+  --pink: #ffdce8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f7eafa;
+  color: var(--dark);
+  font-family: "Trebuchet MS", sans-serif;
+}
+header {
+  text-align: center;
+  padding: 22px 12px 12px;
+}
+h1 { margin: 0; font-size: 2.3rem; }
+header p { margin: 7px 0; }
+.app {
+  max-width: 900px;
+  margin: auto;
+  padding: 12px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.stat, .panel {
+  background: white;
+  border: 2px solid #eee0f5;
+  border-radius: 20px;
+  padding: 13px;
+}
+.stat { text-align: center; font-size: .9rem; }
+.stat strong { display: block; font-size: 1.15rem; }
+.house {
+  position: relative;
+  overflow: hidden;
+  min-height: 345px;
+  border: 3px solid white;
+  border-radius: 26px;
+  background: linear-gradient(#bde7ef 0 65%, #d5b59b 65%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.window {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 76px;
+  height: 94px;
+  border: 7px solid #fff7e9;
+  border-radius: 14px;
+  background: #a5d8f5;
+  font-size: 32px;
+  text-align: center;
+  padding-top: 12px;
+}
+.lamp {
+  position: absolute;
+  right: 22px;
+  top: 22px;
+  font-size: 38px;
+}
+.rug {
+  position: absolute;
+  bottom: -36px;
+  width: 290px;
+  height: 100px;
+  background: #edc8dc;
+  border-radius: 50%;
+}
+.cat {
+  position: relative;
+  z-index: 2;
+  width: 190px;
+  height: 230px;
+  cursor: pointer;
+  animation: breathe 2.5s ease-in-out infinite;
+  transition: transform .25s;
+}
+.cat:active { transform: scale(1.08) rotate(-3deg); }
+.ears {
+  position: absolute;
+  top: 4px;
+  width: 0; height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 66px solid #17151c;
+}
+.ears.left { left: 24px; transform: rotate(-15deg); }
+.ears.right { right: 24px; transform: rotate(15deg); }
+.head {
+  position: absolute;
+  top: 35px;
+  left: 20px;
+  width: 150px;
+  height: 125px;
+  background: #17151c;
+  border-radius: 46% 46% 43% 43%;
+  z-index: 2;
+}
+.eye {
+  position: absolute;
+  top: 45px;
+  width: 27px;
+  height: 31px;
+  background: #8df6a4;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #8df6a466;
+}
+.eye:after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 22px;
+  top: 4px;
+  left: 8px;
+  background: #17251b;
+  border-radius: 50%;
+}
+.eye.left { left: 28px; }
+.eye.right { right: 28px; }
+.nose {
+  position: absolute;
+  top: 82px;
+  left: 70px;
+  width: 11px;
+  height: 7px;
+  background: #ffb4cf;
+  border-radius: 50%;
+}
+.bodycat {
+  position: absolute;
+  left: 36px;
+  top: 128px;
+  width: 125px;
+  height: 100px;
+  border-radius: 48% 48% 35% 35%;
+  background: #17151c;
+}
+.tail {
+  position: absolute;
+  z-index: -1;
+  right: -4px;
+  bottom: 5px;
+  width: 83px;
+  height: 40px;
+  border: 14px solid #17151c;
+  border-left-color: transparent;
+  border-top-color: #17151c;
+  border-radius: 50%;
+  transform: rotate(15deg);
+}
+.paws {
+  position: absolute;
+  bottom: -1px;
+  left: 28px;
+  width: 42px;
+  height: 26px;
+  border-radius: 50%;
+  background: #17151c;
+  box-shadow: 46px 0 #17151c, 92px -2px #17151c;
+}
+#outfit {
+  position: absolute;
+  z-index: 4;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 37px;
+  pointer-events: none;
+}
+#message {
+  z-index: 3;
+  margin-top: 4px;
+  min-height: 24px;
+  font-weight: bold;
+  color: #40334e;
+  text-align: center;
+}
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin: 13px 0;
+}
+button, select {
+  font: inherit;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 8px;
+}
+button {
+  background: #e5d4ff;
+  color: #302341;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform .15s, filter .15s;
+}
+button:hover { filter: brightness(.97); transform: translateY(-2px); }
+button:disabled { opacity: .5; cursor: default; }
+.panel { margin-top: 12px; }
+.panel h2 { margin: 0 0 12px; font-size: 1.15rem; }
+.shop {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.shop button { background: #fff0f6; }
+select { background: #f0e8ff; width: 100%; }
+.note { color: #756b80; font-size: .85rem; }
+@keyframes breathe {
+  0%,100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+@media(max-width:450px) {
+  .house { min-height: 330px; }
+  .stat { padding: 10px 3px; font-size: .8rem; }
+  .actions button { font-size: .84rem; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🐈‍⬛ Salem</h1>
+  <p>Tu pequeño compañero mágico 💚</p>
+</header>
+
+<main class="app">
+  <section class="stats">
+    <div class="stat">🪙 Monedas<strong id="coins">0</strong></div>
+    <div class="stat">💗 Felicidad<strong id="happy">70</strong></div>
+    <div class="stat">🍗 Hambre<strong id="food">70</strong></div>
+  </section>
+
+  <section class="house" id="house">
+    <div class="window" id="window">☀️</div>
+    <div class="lamp" id="decor">🪴</div>
+    <div class="rug"></div>
+
+    <div class="cat" id="cat" role="button"
+         tabindex="0" aria-label="Acariciar a Salem">
+      <div class="tail"></div>
+      <div class="ears left"></div>
+      <div class="ears right"></div>
+      <div class="head">
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="nose"></div>
+      </div>
+      <div class="bodycat"></div>
+      <div class="paws"></div>
+      <div id="outfit"></div>
+    </div>
+    <div id="message" aria-live="polite">
+      ¡Miau! Me alegro de verte 💚
+    </div>
+  </section>
+
+  <section class="actions">
+    <button onclick="pet()">💗 Caricias</button>
+    <button onclick="play()">🧶 Jugar</button>
+    <button onclick="feed()">🐟 Comida</button>
+  </section>
+
+  <section class="panel">
+    <h2>🏡 Cambia las estaciones</h2>
+    <select id="season" onchange="changeSeason()">
+      <option value="spring">🌸 Primavera</option>
+      <option value="summer">☀️ Verano</option>
+      <option value="autumn">🍂 Otoño</option>
+      <option value="winter">❄️ Invierno</option>
+      <option value="halloween">🎃 Halloween</option>
+    </select>
+  </section>
+
+  <section class="panel">
+    <h2>🎀 Armario de Salem</h2>
+    <p class="note">Consigue monedas cuidando de Salem y desbloquea accesorios.</p>
+    <div class="shop" id="shop"></div>
+  </section>
+
+  <section class="panel">
+    <h2>✨ Tu aventura</h2>
+    <p id="level">Nivel 1 · Gatito novato</p>
+    <p class="note">Tus monedas, nivel y accesorios se guardan en este navegador.</p>
+    <button onclick="resetGame()">🔄 Reiniciar partida</button>
+  </section>
+</main>
+
+<script>
+const defaults = {
+  coins: 0, happy: 70, food: 70,
+  xp: 0, owned: ["none"], outfit: "none",
+  season: "spring"
+};
+
+let state;
+try {
+  state = {...defaults, ...JSON.parse(
+    localStorage.getItem("salem-save") || "{}"
+  )};
+} catch {
+  state = {...defaults};
+}
+
+const items = [
+  {id:"none", name:"Sin accesorio", emoji:"🐈‍⬛", price:0},
+  {id:"bow", name:"Lacito rosa", emoji:"🎀", price:15},
+  {id:"hat", name:"Sombrero mágico", emoji:"🧙", price:30},
+  {id:"flower", name:"Flores primaverales", emoji:"🌸", price:25},
+  {id:"sunglasses", name:"Gafas de sol", emoji:"🕶️", price:35},
+  {id:"scarf", name:"Bufanda de invierno", emoji:"🧣", price:40},
+  {id:"pumpkin", name:"Disfraz calabaza", emoji:"🎃", price:60},
+  {id:"crown", name:"Corona real", emoji:"👑", price:100}
+];
+
+function save() {
+  localStorage.setItem("salem-save", JSON.stringify(state));
+  render();
+}
+
+function say(text) {
+  document.getElementById("message").textContent = text;
+}
+
+function reward(amount, xp=5) {
+  state.coins += amount;
+  state.xp += xp;
+}
+
+function pet() {
+  state.happy = Math.min(100, state.happy + 10);
+  reward(5);
+  say("¡Prrrrr! Salem adora tus caricias 💚 +5 monedas");
+  save();
+}
+
+function play() {
+  if (state.food < 10) {
+    say("Salem tiene hambre. ¡Dale algo rico primero! 🐟");
+    return;
+  }
+  state.happy = Math.min(100, state.happy + 15);
+  state.food = Math.max(0, state.food - 10);
+  reward(10, 10);
+  say("¡Miau! ¡Qué divertido jugar contigo! 🧶 +10 monedas");
+  save();
+}
+
+function feed() {
+  state.food = Math.min(100, state.food + 20);
+  reward(3);
+  say("Ñam, ñam... ¡Gracias por la comidita! 🐟 +3 monedas");
+  save();
+}
+
+function changeSeason() {
+  state.season = document.getElementById("season").value;
+  const themes = {
+    spring: ["#c7efcf","#d8b89a","🌸","🪴"],
+    summer: ["#a9e1f5","#dfc08b","☀️","🌴"],
+    autumn: ["#f5c69d","#b98867","🍂","🎃"],
+    winter: ["#d4e5ff","#c6cbdc","❄️","🕯️"],
+    halloween: ["#6c497f","#4c304c","🌙","🎃"]
+  };
+  const t = themes[state.season];
+  const house = document.getElementById("house");
+  house.style.background =
+    `linear-gradient(${t[0]} 0 65%, ${t[1]} 65%)`;
+  document.getElementById("window").textContent = t[2];
+  document.getElementById("decor").textContent = t[3];
+  if (state.season === "halloween") {
+    say("¡Bienvenido a casa, pequeño gato de Halloween! 🎃");
+  } else {
+    say("¡Qué bonito está nuestro hogar! 💚");
+  }
+  save();
+}
+
+function buyOrWear(id) {
+  const item = items.find(x => x.id === id);
+  if (!item) return;
+  if (!state.owned.includes(id)) {
+    if (state.coins < item.price) {
+      say("¡Necesitas más monedas para comprarlo! 🪙");
+      return;
+    }
+    state.coins -= item.price;
+    state.owned.push(id);
+    say("¡Has desbloqueado " + item.name + "! 🎉");
+  } else {
+    say("¡Qué guapo estás, Salem! " + item.emoji);
+  }
+  state.outfit = id;
+  save();
+}
+
+function render() {
+  document.getElementById("coins").textContent = state.coins;
+  document.getElementById("happy").textContent = state.happy + "/100";
+  document.getElementById("food").textContent = state.food + "/100";
+  const level = Math.floor(state.xp / 50) + 1;
+  document.getElementById("level").textContent =
+    "Nivel " + level + " · " +
+    (level < 3 ? "Gatito novato" :
+     level < 6 ? "Gato aventurero" : "Gato mágico legendario");
+  const item = items.find(x => x.id === state.outfit);
+  document.getElementById("outfit").textContent =
+    item && item.id !== "none" ? item.emoji : "";
+
+  document.getElementById("shop").innerHTML = items.map(item => {
+    const owned = state.owned.includes(item.id);
+    const label = item.id === "none" ? "Ponérselo" :
+      owned ? "Equipar" : "Comprar · " + item.price + " 🪙";
+    return `<button onclick="buyOrWear('${item.id}')">
+      ${item.emoji} ${item.name}<br><small>${label}</small>
+    </button>`;
+  }).join("");
+}
+
+function resetGame() {
+  if (!confirm("¿Quieres empezar de cero? Perderás tus monedas y accesorios.")) return;
+  state = {...defaults, owned:["none"]};
+  save();
+  changeSeason();
+  say("¡Hola otra vez! Salem está listo para jugar 💚");
+}
+
+document.getElementById("cat").addEventListener("click", pet);
+document.getElementById("cat").addEventListener("keydown", e => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    pet();
+  }
+});
+
+document.getElementById("season").value = state.season;
+render();
+changeSeason();
+</script>
+</body>
+</html>
