@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi agenda de clase</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Patrick+Hand&family=Fredoka:wght@400;600&family=Lora:wght@400;600&family=Bangers&family=Space+Mono&family=Pacifico&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--bg:#e8eef0;--ink:#14263a;--card:#fff;--soft:#f1f5f6;--soft2:#fffbe8;--line:#cfd8dc;--acc:#14263a;--onacc:#fff;--hi:#f5c518;--onhi:#14263a;--head:#14263a}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font:16px/1.5 'Bricolage Grotesque',system-ui,sans-serif;background:var(--bg);background-attachment:fixed;color:var(--ink)}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:16px 18px 0;max-width:1000px;margin:auto}
+h1{margin:0;font-size:1.8rem;font-weight:800;letter-spacing:-.5px;color:var(--head)}
+h2{margin:.2em 0 .6em;font-size:1.2rem}
+nav{display:flex;gap:6px;overflow-x:auto;padding:12px 18px;max-width:1000px;margin:auto}
+nav button{white-space:nowrap;border:2px solid var(--head);color:var(--head);background:transparent;border-radius:999px;padding:5px 14px;font-weight:600}
+nav button:hover{background:transparent}
+nav button.on{background:var(--hi);color:var(--onhi);border-color:var(--hi)}
+main{max-width:1000px;margin:auto;padding:0 18px 40px}
+section{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+section.on{display:block}
+input,button,select,textarea{font:inherit;color:inherit}
+input,select,textarea{border:2px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--card);color:var(--ink)}
+button{cursor:pointer;border:1px solid var(--ink);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px}
+button:hover{background:var(--soft)}button.p{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.muted{opacity:.72;font-size:.9rem}
+ul{list-style:none;padding:0;margin:0}
+li.it{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.tag{background:var(--hi);color:var(--onhi);border-radius:6px;padding:0 8px;font-weight:600;white-space:nowrap}
+.bad{background:#fbd0c8;color:#14263a}.ok{background:#c9ecd9;color:#14263a}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:600px}
+th,td{border:1px solid var(--line);padding:6px;text-align:center}
+td[contenteditable]{min-width:90px;min-height:2em}td[contenteditable]:focus{background:var(--soft2)}
+th.h{background:var(--acc);color:var(--onacc)}td.t{background:var(--soft);white-space:nowrap;font-size:.85rem}
+.big{font-size:3.4rem;font-weight:800;font-variant-numeric:tabular-nums;margin:.1em 0}
+canvas{width:100%;border:2px dashed var(--line);border-radius:10px;touch-action:none;background:#fff;cursor:crosshair}
+textarea{width:100%;min-height:110px}
+.card{min-height:170px;display:grid;place-items:center;text-align:center;font-size:1.5rem;font-weight:600;padding:20px;border:2px solid var(--ink);border-radius:14px;background:var(--soft2);cursor:pointer}
+.card.back{background:var(--soft)}
+.grid{display:grid;gap:6px}
+#sg{grid-template-columns:repeat(9,1fr);max-width:420px;gap:0;border:3px solid var(--ink)}
+#sg div{aspect-ratio:1;display:grid;place-items:center;font-size:1.3rem;border:1px solid var(--line);cursor:pointer}
+#sg div:nth-child(3n){border-right:2px solid var(--ink)}
+#sg div:nth-child(n+19):nth-child(-n+27),#sg div:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid var(--ink)}
+#sg .g{font-weight:800;background:var(--soft)}#sg .s{background:#fff3b0;color:#14263a}#sg .e{background:#fbd0c8;color:#14263a}
+#mg{grid-template-columns:repeat(4,1fr);max-width:380px}
+#mg button{aspect-ratio:1;font-size:2rem;padding:0}
+#mg button.f{background:#fff3b0;color:#14263a}#mg button.m{background:#c9ecd9;color:#14263a}
+#tg{grid-template-columns:repeat(3,90px)}
+#tg button{height:90px;font-size:2.4rem;font-weight:800}
+#dec{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#dec span{position:absolute;opacity:.55;animation:fl 7s ease-in-out infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+#dec svg{position:absolute;top:0;width:170px;height:170px;opacity:.6}
+@keyframes fl{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){#dec span{animation:none}}
+header,nav,main{position:relative;z-index:1}
+#ti{margin-right:8px}
+td[contenteditable]:focus{outline:3px solid var(--hi);outline-offset:-3px}
+td.rec{background:repeating-linear-gradient(45deg,var(--soft),var(--soft) 8px,var(--soft2) 8px,var(--soft2) 16px);font-weight:600}
+.cal{min-width:560px}td.cd{vertical-align:top;height:80px;text-align:left;font-size:.8rem;min-width:0;width:14.2%}
+td.today{outline:3px solid var(--hi);outline-offset:-3px}
+.chip{font-size:.72rem;border-radius:4px;padding:1px 4px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{border:1px solid var(--ink);border-radius:8px;padding:4px 10px;color:var(--ink);text-decoration:none;background:var(--card);font-size:.9rem}
+td[contenteditable]{height:64px;vertical-align:middle}
+td.t input{width:96px;padding:2px 4px;font-size:.85rem}
+.ans{display:flex;gap:10px;align-items:center;min-height:68px;padding:10px 14px;font-size:1.05rem;font-weight:700;text-align:left;border-radius:10px;border:0;color:#fff}
+.ans.t{background:var(--soft);color:var(--ink);border:2px solid var(--line)}
+.ans:disabled{cursor:default}.ans b{font-size:1.3rem}
+</style>
+</head>
+<body>
+<header><h1><span id="ti"></span>Mi agenda de clase</h1><div class="row"><select id="ft" aria-label="Tipo de letra"></select><select id="th" aria-label="Tema de colores"></select></div></header>
+<nav id="nav"></nav>
+<main>
+
+<section id="cl">
+  <h2>Classroom</h2>
+  <div class="row">
+    <input id="cem" type="email" placeholder="tucorreo@gmail.com" size="32" autocomplete="email" aria-label="Tu correo de Google">
+    <button class="p" onclick="login()">Conectar con Classroom</button>
+  </div>
+  <p class="muted" id="cmsg">Escribe tu correo y pulsa Conectar. Se abrirá la ventana de Google para que confirmes con tu cuenta.</p>
+  <h2>Tareas por entregar</h2><ul id="pend"></ul>
+  <h2>Notas</h2><ul id="notas"></ul>
+</section>
+
+<section id="ho">
+  <h2>Horario</h2>
+  <p class="muted">Escribe la asignatura en cada casilla y cambia las horas pulsando sobre ellas: 3 clases, recreo y 3 clases. Se guarda solo.</p>
+  <div class="wrap"><table id="ht"></table></div>
+  <p class="muted">Cada asignatura tiene su color. Puedes cambiarlo aquí:</p><div class="row" id="lg"></div>
+</section>
+
+<section id="ex">
+  <h2>Exámenes</h2>
+  <div class="row">
+    <input id="en" list="sbj" placeholder="Asignatura"><datalist id="sbj"></datalist>
+    <input id="et" placeholder="Tema (opcional)">
+    <input id="ed" type="date" aria-label="Fecha">
+    <button class="p" onclick="addEx()">Añadir examen</button>
+  </div>
+  <p class="muted" id="exm">Los exámenes aparecen solos en el calendario. Si conectas Classroom, también se añaden a tu Google Calendar.</p>
+  <div class="row"><button onclick="cmv(-1)" aria-label="Mes anterior">‹</button><b id="cmt" style="min-width:150px;text-align:center"></b><button onclick="cmv(1)" aria-label="Mes siguiente">›</button><button onclick="ics()">Descargar .ics</button></div>
+  <div class="wrap"><table class="cal" id="cal"></table></div>
+  <h2>Próximos exámenes</h2><ul id="el"></ul>
+</section>
+
+<section id="cr">
+  <h2>Cronómetro</h2>
+  <div class="row"><button id="mS" class="p" onclick="mode(0)">Cronómetro</button><button id="mC" onclick="mode(1)">Cuenta atrás</button></div>
+  <div class="big" id="td">00:00.0</div>
+  <div class="row" id="cin" hidden><input id="cmin" type="number" min="1" value="25" style="width:80px"> minutos</div>
+  <div class="row">
+    <button class="p" onclick="toggle()" id="tb">Iniciar</button>
+    <button onclick="lap()" id="lb">Vuelta</button>
+    <button onclick="resetT()">Reiniciar</button>
+  </div>
+  <ul id="laps"></ul>
+</section>
+
+<section id="no">
+  <h2>Apuntes</h2>
+  <div class="row">
+    <select id="ns" onchange="selNote(this.value)"></select>
+    <button onclick="newNote()">Nueva nota</button>
+    <button onclick="delNote()">Borrar nota</button>
+  </div>
+  <div class="row"><input id="nt" placeholder="Título" style="flex:1"></div>
+  <textarea id="nx" placeholder="Escribe aquí tus apuntes…"></textarea>
+  <div class="row">
+    <input type="color" id="pc" value="#14263a" aria-label="Color">
+    <input type="range" id="pw" min="1" max="20" value="3" aria-label="Grosor">
+    <button id="pe" onclick="erase=!erase;this.classList.toggle('p',erase)">Goma</button>
+    <button onclick="clearC()">Limpiar dibujo</button>
+  </div>
+  <canvas id="cv" width="900" height="480"></canvas>
+</section>
+
+<section id="fc">
+  <h2>Flashcards</h2>
+  <div class="row">
+    <input id="fq" placeholder="Pregunta" style="flex:1;min-width:140px">
+    <input id="fa" placeholder="Respuesta" style="flex:1;min-width:140px">
+    <button class="p" onclick="addCard()">Añadir</button>
+  </div>
+  <div class="card" id="fcard" onclick="flip()" tabindex="0">Añade tu primera tarjeta</div>
+  <div class="row">
+    <button onclick="step(-1)">Anterior</button>
+    <button onclick="step(1)">Siguiente</button>
+    <button onclick="shuf()">Barajar</button>
+    <button onclick="delCard()">Borrar tarjeta</button>
+    <span class="muted" id="fcn"></span>
+  </div>
+</section>
+
+<section id="te">
+  <h2>Test y Kahoot</h2>
+  <p class="muted">Pega lo que estás estudiando (apuntes, resumen o definiciones tipo «Mitosis: división de una célula…») y se crean preguntas.</p>
+  <textarea id="tsrc" placeholder="Pega aquí el tema…"></textarea>
+  <div class="row"><button class="p" onclick="genTxt()">Crear preguntas con este texto</button><button onclick="fromFC()">Usar mis flashcards</button><button onclick="aiPrompt()">Copiar petición para Claude</button></div>
+  <p class="muted">Para preguntas de más calidad: copia la petición, mándasela a Claude con tu tema y pega aquí lo que te devuelva (una pregunta por línea: Pregunta | correcta | incorrecta 1 | incorrecta 2 | incorrecta 3).</p>
+  <textarea id="timp" placeholder="¿Capital de Francia? | París | Roma | Madrid | Berlín"></textarea>
+  <div class="row"><button onclick="impQ()">Añadir estas preguntas</button><span class="muted" id="tmsg"></span></div>
+  <h2>Jugar <span class="muted" id="tcount"></span></h2>
+  <div class="row">
+    <button class="p" onclick="startQ('k')">⚡ Modo Kahoot</button><button onclick="startQ('t')">📝 Test clásico</button>
+    <select id="tn" aria-label="Número de preguntas"><option value="5">5 preguntas</option><option value="10" selected>10 preguntas</option><option value="20">20 preguntas</option><option value="0">Todas</option></select>
+    <select id="tt" aria-label="Tiempo por pregunta"><option value="10">10 s</option><option value="20" selected>20 s</option><option value="30">30 s</option></select>
+  </div>
+  <div id="tplay"></div>
+  <h2>Mis preguntas</h2><div class="row"><button onclick="if(confirm('¿Borrar todas las preguntas?')){QB=[];W('qz',QB);rQ()}">Borrar todas</button></div>
+  <ul id="tlist"></ul>
+</section>
+
+<section id="ju">
+  <h2>Juegos</h2>
+  <div class="row">
+    <button onclick="game('su')">Sudoku</button>
+    <button onclick="game('me')">Memoria</button>
+    <button onclick="game('tt')">3 en raya</button>
+  </div>
+  <div id="su" class="g1">
+    <div class="row"><button class="p" onclick="newSudoku()">Nuevo sudoku</button><button onclick="checkSu()">Comprobar</button><span id="sm" class="muted"></span></div>
+    <div id="sg" class="grid"></div>
+    <div class="row" id="np"></div>
+  </div>
+  <div id="me" class="g1" hidden>
+    <div class="row"><button class="p" onclick="newMem()">Nueva partida</button><span id="mm" class="muted"></span></div>
+    <div id="mg" class="grid"></div>
+  </div>
+  <div id="tt" class="g1" hidden>
+    <div class="row"><button class="p" onclick="newTT()">Nueva partida</button><span id="tm"></span></div>
+    <div id="tg" class="grid"></div>
+    <p class="muted" id="ts"></p>
+  </div>
+</section>
+
+<section id="help" style="display:block;margin-top:14px;background:var(--soft2)">
+  <h2>Cómo conectar Classroom (una sola vez)</h2>
+  <ol class="muted" style="margin:0;padding-left:20px">
+    <li>Entra en console.cloud.google.com y crea un proyecto.</li>
+    <li>En «APIs y servicios» activa Google Classroom API y Google Calendar API.</li>
+    <li>Pantalla de consentimiento OAuth: tipo Externo y añade tu correo como usuario de prueba. Si tu centro usa Google Workspace, puede que el administrador tenga que permitir la app.</li>
+    <li>Credenciales → ID de cliente de OAuth → Aplicación web. En «Orígenes autorizados» pon https://TU-USUARIO.github.io</li>
+    <li>Copia el Client ID y pégalo en la línea <code>const CLIENT_ID=''</code> al principio del script de index.html. Solo se hace una vez; después basta con tu correo.</li>
+  </ol>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const S=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const W=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sh=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+
+/* ---------- Pestañas ---------- */
+const TABS=[['cl','Classroom'],['ho','Horario'],['ex','Exámenes'],['cr','Cronómetro'],['no','Apuntes'],['fc','Flashcards'],['te','Test / Kahoot'],['ju','Juegos']];
+$('#nav').innerHTML=TABS.map(t=>`<button data-t="${t[0]}">${t[1]}</button>`).join('');
+function show(id){
+  $$('main>section:not(#help)').forEach(s=>s.classList.toggle('on',s.id===id));
+  $$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===id));
+  $('#help').style.display=id==='cl'?'block':'none';
+  if(id==='no')initCanvas();
+  location.hash=id;
+}
+$('#nav').onclick=e=>{if(e.target.dataset.t)show(e.target.dataset.t)};
+
+/* ---------- 1. Classroom ---------- */
+let tk='';
+const CLIENT_ID=''; // ← pega aquí tu Client ID de Google (se hace una sola vez, mira los pasos de abajo)
+$('#cem').value=S('cem','');
+function login(){
+  const em=$('#cem').value.trim();
+  if(!CLIENT_ID){$('#cmsg').textContent='Falta pegar el Client ID en index.html (mira los pasos de abajo).';return}
+  if(em&&!/^\S+@\S+\.\S+$/.test(em)){$('#cmsg').textContent='Ese correo no parece válido.';return}
+  if(!window.google){$('#cmsg').textContent='Google aún no ha cargado. Espera un momento e inténtalo de nuevo.';return}
+  W('cem',em);
+  google.accounts.oauth2.initTokenClient({
+    client_id:CLIENT_ID,login_hint:em||undefined,
+    scope:'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly https://www.googleapis.com/auth/classroom.student-submissions.me.readonly https://www.googleapis.com/auth/calendar.events',
+    callback:r=>{if(r.access_token){tk=r.access_token;loadCl()}else $('#cmsg').textContent='No se pudo conectar.'}
+  }).requestAccessToken();
+}
+const api=async p=>{const r=await fetch('https://classroom.googleapis.com/v1/'+p,{headers:{Authorization:'Bearer '+tk}});if(!r.ok)throw Error('Error '+r.status);return r.json()};
+async function loadCl(){
+  $('#cmsg').textContent='Cargando…';
+  try{
+    const cs=(await api('courses?courseStates=ACTIVE')).courses||[];
+    const all=(await Promise.all(cs.map(async c=>{
+      const [w,s]=await Promise.all([api(`courses/${c.id}/courseWork?pageSize=100`),api(`courses/${c.id}/courseWork/-/studentSubmissions?pageSize=100`)]);
+      const sm={};(s.studentSubmissions||[]).forEach(x=>sm[x.courseWorkId]=x);
+      return (w.courseWork||[]).map(t=>{const u=sm[t.id]||{},d=t.dueDate;
+        return{c:c.name,t:t.title,due:d?new Date(d.year,d.month-1,d.day):null,st:u.state,g:u.assignedGrade,max:t.maxPoints}});
+    }))).flat();
+    const pend=all.filter(x=>x.st&&x.st!=='TURNED_IN'&&x.st!=='RETURNED').sort((a,b)=>(a.due||9e15)-(b.due||9e15));
+    const gr=all.filter(x=>x.g!=null);
+    const f=d=>d?d.toLocaleDateString('es-ES',{day:'numeric',month:'short'}):'sin fecha';
+    $('#pend').innerHTML=pend.map(x=>`<li class="it"><span><b>${esc(x.t)}</b><br><span class="muted">${esc(x.c)}</span></span><span class="tag ${x.due&&x.due<new Date()?'bad':''}">${f(x.due)}</span></li>`).join('')||'<li class="muted">No tienes tareas pendientes.</li>';
+    $('#notas').innerHTML=gr.map(x=>`<li class="it"><span><b>${esc(x.t)}</b><br><span class="muted">${esc(x.c)}</span></span><span class="tag ok">${x.g}${x.max?' / '+x.max:''}</span></li>`).join('')||'<li class="muted">Aún no hay notas publicadas.</li>';
+    $('#cmsg').textContent=`Conectado: ${cs.length} clases.`;EX.filter(x=>!x.ev&&x.d>=ymd(new Date())).forEach(gcal);
+  }catch(e){$('#cmsg').textContent='No se pudo leer Classroom ('+e.message+'). Revisa que el correo sea el de tu cuenta, el Client ID y el origen autorizado.'}
+}
+
+/* ---------- 2. Horario ---------- */
+let EX=S('ex',[]);
+const days=['Lunes','Martes','Miércoles','Jueves','Viernes'],H=S('ho2',{});
+const PAL=['#ffd6a5','#caffbf','#9bf6ff','#bdb2ff','#ffc6ff','#fdffb6','#a0c4ff','#ffadad','#b8f2e6','#f4a261'];
+let SC=S('sc',{});
+const key=n=>String(n).trim().toLowerCase();
+function col(n){const k=key(n);if(!k)return null;if(!SC[k]){SC[k]=PAL[Object.keys(SC).length%PAL.length];W('sc',SC)}return SC[k]}
+const tc=h=>{const v=parseInt(h.slice(1),16);return(((v>>16)*299+((v>>8)&255)*587+(v&255)*114)/1000>150)?'#14263a':'#fff'};
+function paint(td){const c=col(td.textContent);td.style.background=c||'';td.style.color=c?tc(c):''}
+const paintAll=()=>$$('#ht td[data-k]').forEach(paint);
+const hm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const HT=S('ht',[['08:15','09:15'],['09:15','10:15'],['10:15','11:15'],['11:15','11:45'],['11:45','12:25'],['12:25','13:05'],['13:05','13:45']]);
+const ti=i=>`<td class="t"><input type="time" value="${HT[i][0]}" data-t="${i}-0" aria-label="Hora de inicio"> – <input type="time" value="${HT[i][1]}" data-t="${i}-1" aria-label="Hora de fin"></td>`;
+let hh='<tr><th class="h">Hora</th>'+days.map(d=>`<th class="h">${d}</th>`).join('')+'</tr>';
+for(let i=0;i<7;i++)hh+='<tr>'+ti(i)+(i===3?'<td colspan="5" class="rec">☕ DESCANSO</td>':days.map((_,d)=>`<td contenteditable data-k="${i}-${d}">${esc(H[i+'-'+d])}</td>`).join(''))+'</tr>';
+$('#ht').innerHTML=hh;
+$('#ht').oninput=e=>{const d=e.target.dataset;if(d.t){const[i,j]=d.t.split('-');HT[i][j]=e.target.value;W('ht',HT)}else if(d.k){H[d.k]=e.target.textContent;W('ho2',H)}};
+$('#ht').addEventListener('focusout',e=>{if(e.target.dataset&&e.target.dataset.k){paint(e.target);legend();renderEx()}});
+function legend(){
+  const m={};Object.values(H).forEach(v=>{const k=key(v);if(k&&!m[k])m[k]=String(v).trim()});EX.forEach(x=>{const k=key(x.n);if(!m[k])m[k]=x.n});
+  $('#lg').innerHTML=Object.keys(m).map(k=>{const c=col(m[k]);return`<label class="tag" style="background:${c};color:${tc(c)};padding:2px 10px"><input type="color" value="${c}" data-k="${esc(k)}" style="width:22px;height:22px;padding:0;border:0;vertical-align:middle;background:none"> ${esc(m[k])}</label>`}).join('')||'<span class="muted">Escribe asignaturas en el horario y cada una tendrá su color.</span>';
+  $('#sbj').innerHTML=Object.values(m).map(v=>`<option value="${esc(v)}">`).join('');
+}
+$('#lg').onchange=e=>{if(e.target.dataset.k){SC[e.target.dataset.k]=e.target.value;W('sc',SC);paintAll();legend();renderEx()}};
+
+/* ---------- 3. Exámenes ---------- */
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const nextD=d=>{const e=new Date(d+'T00:00');e.setDate(e.getDate()+1);return ymd(e)};
+const exName=x=>'Examen: '+x.n+(x.t?' – '+x.t:'');
+let cm=new Date();cm.setDate(1);
+function addEx(){const n=$('#en').value.trim(),d=$('#ed').value,t=$('#et').value.trim();if(!n||!d)return;
+  const x={n,t,d};EX.push(x);W('ex',EX);$('#en').value=$('#et').value='';cm=new Date(d+'T00:00');cm.setDate(1);legend();renderEx();gcal(x)}
+const GH=()=>({Authorization:'Bearer '+tk,'Content-Type':'application/json'});
+async function gcal(x){
+  if(!tk)return;
+  try{const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{method:'POST',headers:GH(),body:JSON.stringify({summary:exName(x),start:{date:x.d},end:{date:nextD(x.d)},reminders:{useDefault:false,overrides:[{method:'popup',minutes:1440}]}})});
+    if(!r.ok)throw 0;x.ev=(await r.json()).id;W('ex',EX);$('#exm').textContent='Añadido a tu Google Calendar ✔'}
+  catch{$('#exm').textContent='No se pudo añadir a Google Calendar. Usa el botón del examen o descarga el .ics.'}
+  renderEx()}
+async function delEx(i){const x=EX[i];if(x.ev&&tk){try{await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+x.ev,{method:'DELETE',headers:GH()})}catch{}}EX.splice(i,1);W('ex',EX);legend();renderEx()}
+function cmv(n){cm.setMonth(cm.getMonth()+n);renderCal()}
+function renderCal(){
+  const y=cm.getFullYear(),m=cm.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),today=ymd(new Date());
+  $('#cmt').textContent=cm.toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+  let h='<tr>'+['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<th class="h">${d}</th>`).join('')+'</tr><tr>';
+  for(let i=0;i<f;i++)h+='<td></td>';
+  for(let d=1;d<=n;d++){const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    h+=`<td class="cd${k===today?' today':''}"><b>${d}</b>`+EX.filter(x=>x.d===k).map(x=>{const c=col(x.n);return`<div class="chip" style="background:${c};color:${tc(c)}">${esc(x.n)}</div>`}).join('')+'</td>';
+    if((f+d)%7===0&&d<n)h+='</tr><tr>'}
+  $('#cal').innerHTML=h+'</tr>';
+}
+function renderEx(){
+  EX.sort((a,b)=>a.d.localeCompare(b.d));
+  const t=new Date().setHours(0,0,0,0);
+  $('#el').innerHTML=EX.map((x,i)=>{const n=Math.round((new Date(x.d+'T00:00')-t)/864e5),c=col(x.n);
+    const l=n<0?'pasado':n===0?'¡hoy!':n===1?'mañana':`faltan ${n} días`;
+    const gl=`https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=${encodeURIComponent(exName(x))}&amp;dates=${x.d.replace(/-/g,'')}/${nextD(x.d).replace(/-/g,'')}`;
+    const cb=x.ev?'<span class="tag ok">En Google Calendar</span>':`<a class="btn" href="${gl}" target="_blank" rel="noopener">+ Google Calendar</a>`;
+    return`<li class="it" style="border-left:8px solid ${c};padding-left:10px;${n<0?'opacity:.5':''}"><span><b>${esc(x.n)}</b>${x.t?' – '+esc(x.t):''}<br><span class="muted">${new Date(x.d+'T00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</span></span><span class="row"><span class="tag ${n>=0&&n<=3?'bad':''}">${l}</span>${cb}<button onclick="delEx(${i})">Borrar</button></span></li>`}).join('')||'<li class="muted">No hay exámenes. Añade el primero arriba.</li>';
+  renderCal();
+}
+function ics(){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mi agenda//ES','CALSCALE:GREGORIAN'],st=new Date().toISOString().replace(/[-:]|\.\d+/g,'');
+  EX.forEach((x,i)=>L.push('BEGIN:VEVENT','UID:ex'+i+x.d+'@agenda','DTSTAMP:'+st,'DTSTART;VALUE=DATE:'+x.d.replace(/-/g,''),'DTEND;VALUE=DATE:'+nextD(x.d).replace(/-/g,''),'SUMMARY:'+exName(x).replace(/[,;]/g,' '),'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:Examen mañana','END:VALARM','END:VEVENT'));
+  L.push('END:VCALENDAR');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([L.join('\r\n')],{type:'text/calendar'}));a.download='examenes.ics';a.click();
+}
+paintAll();legend();renderEx();
+
+/* ---------- 4. Cronómetro ---------- */
+let M=0,run=0,t0=0,acc=0,iv,LP=[];
+const fmt=ms=>{ms=Math.max(0,ms);const m=Math.floor(ms/6e4),s=Math.floor(ms/1e3)%60,d=Math.floor(ms/100)%10;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+d};
+const el=()=>acc+(run?Date.now()-t0:0);
+const total=()=>(+$('#cmin').value||1)*6e4;
+function draw(){
+  const v=M?total()-el():el();$('#td').textContent=fmt(v);
+  if(M&&v<=0){resetT();beep();$('#td').textContent='00:00.0';$('#tb').textContent='Iniciar';alert('¡Tiempo!')}
+}
+function mode(m){M=m;resetT();$('#mS').classList.toggle('p',!m);$('#mC').classList.toggle('p',!!m);$('#cin').hidden=!m;$('#lb').hidden=!!m;draw()}
+function toggle(){
+  if(run){acc+=Date.now()-t0;run=0;clearInterval(iv);$('#tb').textContent='Seguir'}
+  else{t0=Date.now();run=1;iv=setInterval(draw,100);$('#tb').textContent='Pausa'}
+}
+function resetT(){run=0;acc=0;LP=[];clearInterval(iv);$('#laps').innerHTML='';$('#tb').textContent='Iniciar';draw()}
+function lap(){if(!run)return;LP.push(fmt(el()));$('#laps').innerHTML=LP.map((x,i)=>`<li class="it"><span>Vuelta ${i+1}</span><b>${x}</b></li>`).join('')}
+function beep(){try{const a=new AudioContext(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(()=>o.stop(),700)}catch{}}
+$('#mS').classList.add('p');
+
+/* ---------- 5. Apuntes ---------- */
+let N=S('no',[{id:1,t:'Mi primera nota',x:'',d:''}]),ci=0,erase=false,cvOK=false,sv;
+const cv=$('#cv'),cx=cv.getContext('2d');
+function renderNotes(){$('#ns').innerHTML=N.map((n,i)=>`<option value="${i}" ${i===ci?'selected':''}>${esc(n.t||'Sin título')}</option>`).join('')}
+function selNote(i){ci=+i;const n=N[ci];$('#nt').value=n.t;$('#nx').value=n.x;cx.clearRect(0,0,cv.width,cv.height);if(n.d){const im=new Image();im.onload=()=>cx.drawImage(im,0,0);im.src=n.d}}
+function saveNote(){const n=N[ci];n.t=$('#nt').value;n.x=$('#nx').value;n.d=cv.toDataURL();W('no',N);}
+function newNote(){N.push({id:Date.now(),t:'Nueva nota',x:'',d:''});ci=N.length-1;renderNotes();selNote(ci)}
+function delNote(){if(!confirm('¿Borrar esta nota?'))return;N.splice(ci,1);if(!N.length)N.push({id:Date.now(),t:'Nota',x:'',d:''});ci=0;W('no',N);renderNotes();selNote(0)}
+function clearC(){cx.clearRect(0,0,cv.width,cv.height);saveNote()}
+function initCanvas(){if(cvOK)return;cvOK=true;renderNotes();selNote(ci);
+  let dr=0,lx,ly;const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};
+  cv.onpointerdown=e=>{dr=1;cv.setPointerCapture(e.pointerId);[lx,ly]=pos(e)};
+  cv.onpointermove=e=>{if(!dr)return;const[x,y]=pos(e);cx.lineCap='round';cx.lineWidth=+$('#pw').value*(erase?4:1);
+    cx.globalCompositeOperation=erase?'destination-out':'source-over';cx.strokeStyle=$('#pc').value;
+    cx.beginPath();cx.moveTo(lx,ly);cx.lineTo(x,y);cx.stroke();lx=x;ly=y};
+  cv.onpointerup=cv.onpointercancel=()=>{if(dr){dr=0;saveNote()}};
+  $('#nt').oninput=()=>{saveNote();renderNotes()};
+  $('#nx').oninput=()=>{clearTimeout(sv);sv=setTimeout(saveNote,400)};
+}
+
+/* ---------- 6. Flashcards ---------- */
+let FC=S('fc',[]),fi=0,fb=0;
+function addCard(){const q=$('#fq').value.trim(),a=$('#fa').value.trim();if(!q||!a)return;FC.push({q,a});W('fc',FC);$('#fq').value=$('#fa').value='';fi=FC.length-1;fb=0;rFC()}
+function rFC(){const c=FC[fi],d=$('#fcard');
+  d.classList.toggle('back',!!fb&&!!c);d.textContent=c?(fb?c.a:c.q):'Añade tu primera tarjeta';
+  $('#fcn').textContent=c?`${fi+1} de ${FC.length} · pulsa la tarjeta para girarla`:''}
+function flip(){if(FC.length){fb=!fb;rFC()}}
+function step(n){if(!FC.length)return;fi=(fi+n+FC.length)%FC.length;fb=0;rFC()}
+function shuf(){FC=sh(FC);W('fc',FC);fi=0;fb=0;rFC()}
+function delCard(){if(!FC.length)return;FC.splice(fi,1);W('fc',FC);fi=0;fb=0;rFC()}
+$('#fcard').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}};
+rFC();
+
+/* ---------- Test / Kahoot ---------- */
+let QB=S('qz',[]),PL=null;
+const tmsg=m=>$('#tmsg').textContent=m;
+function rQ(){
+  $('#tcount').textContent=QB.length?`(${QB.length} preguntas)`:'';
+  $('#tlist').innerHTML=QB.slice(0,60).map((x,i)=>`<li class="it"><span>${esc(x.q)}<br><span class="muted">✔ ${esc(x.o[0])}</span></span><button onclick="QB.splice(${i},1);W('qz',QB);rQ()">Borrar</button></li>`).join('')||'<li class="muted">Aún no hay preguntas.</li>';
+}
+function addQs(a){const have=new Set(QB.map(x=>x.q));const n=a.filter(x=>!have.has(x.q));QB.push(...n);W('qz',QB);rQ();tmsg(n.length?`Se añadieron ${n.length} preguntas.`:'No se pudo crear ninguna pregunta nueva.')}
+const NORM=w=>w.replace(/^[^\wáéíóúñÁÉÍÓÚÑ]+|[^\wáéíóúñÁÉÍÓÚÑ]+$/g,'');
+function genQ(text){
+  const pairs=[],sents=[],out=[];
+  text.split(/\n+/).map(l=>l.trim()).filter(Boolean).forEach(l=>{
+    const m=l.match(/^([^:.–—]{2,40}?)\s*(?::|–|—|\s-\s)\s*(.{12,})$/);
+    if(m&&m[1].split(' ').length<=5)pairs.push([m[1].trim(),m[2].trim()]);
+    else l.split(/(?<=[.!?])\s+/).forEach(x=>{const n=x.split(' ').length;if(n>=6&&n<=40)sents.push(x)})});
+  if(pairs.length>=4)pairs.forEach(([t,d])=>out.push({q:'¿A qué corresponde esto? «'+d+'»',o:[t,...sh(pairs.filter(p=>key(p[0])!==key(t))).slice(0,3).map(p=>p[0])]}));
+  const allW=[...new Set(sents.join(' ').split(/\s+/).map(NORM).filter(w=>w.length>=6))];
+  const picks=sents.map(t=>{
+    const c=t.split(' ').map((w,i)=>({w:NORM(w),i})).filter(x=>x.i>0&&(x.w.length>2||/^\d+$/.test(x.w))).map(x=>({...x,num:/^\d+$/.test(x.w),cap:/^[A-ZÁÉÍÓÚÑ]/.test(x.w)}));
+    const b=c.find(x=>x.num)||c.find(x=>x.cap)||c.sort((p,q)=>q.w.length-p.w.length)[0];
+    return b&&(b.num||b.cap||b.w.length>=6)?{t,b}:null}).filter(Boolean);
+  picks.forEach(({t,b})=>{
+    let p=[...new Set(picks.filter(x=>x.b.num===b.num&&x.b.cap===b.cap&&key(x.b.w)!==key(b.w)).map(x=>x.b.w))];
+    if(b.num){const n=+b.w;(n>=1000&&n<=2100?[n-10,n+10,n-5,n+5,n-1,n+1,n-20]:[n+1,n-1,n*2,n+10,n*10]).forEach(v=>{if(v>=0&&String(v)!==b.w&&!p.includes(String(v)))p.push(String(v))})}
+    else if(p.length<3)allW.filter(w=>key(w)!==key(b.w)&&/^[A-ZÁÉÍÓÚÑ]/.test(w)===b.cap&&!p.includes(w)).forEach(w=>p.push(w));
+    const d=sh(p).slice(0,3);if(d.length<3)return;
+    const ws=t.split(' ');ws[b.i]=ws[b.i].replace(b.w,'_____');out.push({q:ws.join(' '),o:[b.w,...d]})});
+  return sh(out).slice(0,20);
+}
+function genTxt(){const t=$('#tsrc').value.trim();if(!t){tmsg('Pega primero el texto del tema.');return}const q=genQ(t);if(!q.length){tmsg('No he podido sacar preguntas de este texto. Prueba con más texto, con definiciones, o pídeselo a Claude.');return}addQs(q)}
+function fromFC(){if(FC.length<4){tmsg('Necesitas al menos 4 flashcards.');return}
+  addQs(FC.map(c=>({q:c.q,o:[c.a,...sh(FC.filter(z=>z!==c&&key(z.a)!==key(c.a))).slice(0,3).map(z=>z.a)]})).filter(x=>x.o.length>=2))}
+function impQ(){const a=$('#timp').value.split('\n').map(l=>l.split('|').map(x=>x.trim()).filter(Boolean)).filter(p=>p.length>=3).map(p=>({q:p[0],o:p.slice(1,5)}));
+  if(!a.length){tmsg('No encuentro líneas con el formato: Pregunta | correcta | incorrecta | …');return}addQs(a);$('#timp').value=''}
+function aiPrompt(){
+  const t='Hazme un test de 10 preguntas de opción múltiple sobre este tema. Respóndeme SOLO con líneas en este formato exacto, sin numerar y sin explicaciones: Pregunta | respuesta correcta | incorrecta 1 | incorrecta 2 | incorrecta 3\n\nTema:\n'+$('#tsrc').value;
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>tmsg('Petición copiada. Pégasela a Claude y pega aquí sus preguntas.'),()=>window.prompt('Copia este texto y mándaselo a Claude:',t))}
+const KC=['#e21b3c','#1368ce','#d89e00','#26890c'],KS=['▲','◆','●','■'];
+function startQ(mode){
+  if(!QB.length){tmsg('Primero crea o añade preguntas.');return}
+  const n=+$('#tn').value;
+  PL={mode,qs:sh(QB).slice(0,n||QB.length).map(x=>({q:x.q,c:x.o[0],o:sh(x.o)})),i:0,sc:0,ok:0,st:0,wrong:[],T:+$('#tt').value};
+  askQ();$('#tplay').scrollIntoView({block:'start',behavior:'smooth'});
+}
+function askQ(){
+  const q=PL.qs[PL.i],k=PL.mode==='k';PL.done=0;PL.t0=Date.now();
+  $('#tplay').innerHTML=`<p class="muted">Pregunta ${PL.i+1} de ${PL.qs.length} · Puntos: <b>${PL.sc}</b>${PL.st>1?' · Racha 🔥'+PL.st:''}</p>`+
+    (k?'<div style="height:10px;background:var(--line);border-radius:6px;overflow:hidden"><div id="tbar" style="height:100%;width:100%;background:var(--hi)"></div></div>':'')+
+    `<div class="card" style="cursor:default;margin:10px 0">${esc(q.q)}</div><div class="grid" id="tans" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">`+
+    q.o.map((o,j)=>`<button class="ans ${k?'':'t'}" ${k?`style="background:${KC[j]}"`:''} data-j="${j}"><b>${k?KS[j]:String.fromCharCode(65+j)}</b>${esc(o)}</button>`).join('')+'</div><div id="tfb" class="row"></div>';
+  $('#tans').onclick=e=>{const b=e.target.closest('button');if(b)pickQ(+b.dataset.j)};
+  if(k){const bar=$('#tbar');requestAnimationFrame(()=>requestAnimationFrame(()=>{bar.style.transition=`width ${PL.T}s linear`;bar.style.width='0%'}));PL.to=setTimeout(()=>pickQ(-1),PL.T*1000)}
+}
+function pickQ(j){
+  if(PL.done)return;PL.done=1;clearTimeout(PL.to);
+  const q=PL.qs[PL.i],k=PL.mode==='k',ok=j>=0&&q.o[j]===q.c;let pts=0;
+  if(ok){pts=k?Math.round(1000*(1-(Date.now()-PL.t0)/(PL.T*2000)))+Math.min(PL.st,4)*100:1;PL.sc+=pts;PL.ok++;PL.st++}else{PL.st=0;PL.wrong.push(q)}
+  $$('#tans button').forEach((b,i)=>{b.disabled=true;const right=q.o[i]===q.c;
+    if(right){b.style.background='#26890c';b.style.color='#fff';b.style.border='0'}
+    else{b.style.opacity='.35';if(i===j){b.style.background='#e21b3c';b.style.color='#fff';b.style.opacity='1'}}});
+  $('#tfb').innerHTML=(ok?`<b>¡Correcto! +${pts}</b>`:`<b>${j<0?'¡Se acabó el tiempo!':'Casi…'}</b> La respuesta era: ${esc(q.c)}`)+(k?'':' <button class="p" onclick="nextQ()">Siguiente</button>');
+  if(k)PL.to=setTimeout(nextQ,2200);
+}
+function nextQ(){clearTimeout(PL.to);PL.i++;PL.i>=PL.qs.length?endQ():askQ()}
+function endQ(){
+  const n=PL.qs.length,p=PL.ok/n,m=p>=.9?'🥇':p>=.6?'🥈':p>=.3?'🥉':'💪';
+  $('#tplay').innerHTML=`<div class="card" style="cursor:default;display:block"><div style="font-size:3rem">${m}</div>Aciertos: ${PL.ok} de ${n}<br>Puntos: ${PL.sc}</div>`+
+    (PL.wrong.length?'<h2>Para repasar</h2><ul>'+PL.wrong.map(q=>`<li class="it"><span>${esc(q.q)}<br><span class="muted">✔ ${esc(q.c)}</span></span></li>`).join('')+'</ul>':'<p>¡Sin fallos!</p>')+
+    `<div class="row"><button class="p" onclick="startQ('${PL.mode}')">Jugar otra vez</button></div>`;
+}
+rQ();
+
+/* ---------- 7. Juegos ---------- */
+function game(id){$$('.g1').forEach(g=>g.hidden=g.id!==id);if(id==='su'&&!sol)newSudoku();if(id==='me'&&!MC.length)newMem();if(id==='tt'&&!TT)newTT()}
+// Sudoku
+let sol,puz,cur,sel=-1;
+function newSudoku(){
+  const g=[0,1,2],p=()=>sh(g).flatMap(a=>sh(g).map(b=>a*3+b)),R=p(),C=p(),nums=sh([1,2,3,4,5,6,7,8,9]);
+  sol=R.map(r=>C.map(c=>nums[(3*(r%3)+Math.floor(r/3)+c)%9])).flat();
+  puz=sol.slice();sh([...Array(81).keys()]).slice(0,44).forEach(i=>puz[i]=0);
+  cur=puz.slice();sel=-1;$('#sm').textContent='';rSu();
+}
+function rSu(){
+  $('#sg').innerHTML=cur.map((v,i)=>`<div data-i="${i}" class="${puz[i]?'g':''} ${i===sel?'s':''}">${v||''}</div>`).join('');
+}
+$('#sg').onclick=e=>{const i=e.target.dataset.i;if(i!=null){sel=+i;rSu()}};
+$('#np').innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="put(${n})">${n}</button>`).join('')+'<button onclick="put(0)">Borrar</button>';
+function put(n){if(sel<0||puz[sel])return;cur[sel]=n;rSu();if(cur.every((v,i)=>v===sol[i]))$('#sm').textContent='¡Sudoku resuelto! 🎉'}
+function checkSu(){rSu();let bad=0;cur.forEach((v,i)=>{if(v&&v!==sol[i]){bad++;$('#sg').children[i].classList.add('e')}});$('#sm').textContent=bad?`${bad} casilla(s) mal`:'Todo lo que hay puesto es correcto'}
+document.addEventListener('keydown',e=>{if($('#ju').classList.contains('on')&&!$('#su').hidden&&/^[0-9]$/.test(e.key)&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName))put(+e.key)});
+// Memoria
+let MC=[],mf=[],mv=0,mlock=0;
+function newMem(){MC=sh([...'🐶🐱🦊🐸🚀⚽🍕🎸'].flatMap(x=>[x,x]));mf=[];mv=0;mlock=0;$('#mm').textContent='Movimientos: 0';
+  $('#mg').innerHTML=MC.map((x,i)=>`<button data-i="${i}">?</button>`).join('')}
+$('#mg').onclick=e=>{
+  const b=e.target.closest('button');if(!b||mlock||b.classList.contains('f')||b.classList.contains('m'))return;
+  b.textContent=MC[b.dataset.i];b.classList.add('f');mf.push(b);
+  if(mf.length===2){mv++;$('#mm').textContent='Movimientos: '+mv;const[x,y]=mf;
+    if(x.textContent===y.textContent){x.classList.replace('f','m');y.classList.replace('f','m');mf=[];
+      if($$('#mg .m').length===16)$('#mm').textContent=`¡Ganaste en ${mv} movimientos! 🎉`}
+    else{mlock=1;setTimeout(()=>{mf.forEach(z=>{z.textContent='?';z.classList.remove('f')});mf=[];mlock=0},800)}}
+};
+// 3 en raya
+let TT,tp,tover,sc={X:0,O:0,E:0};
+function newTT(){TT=Array(9).fill('');tp='X';tover=0;rTT()}
+function rTT(msg){$('#tg').innerHTML=TT.map((v,i)=>`<button data-i="${i}">${v}</button>`).join('');
+  $('#tm').textContent=msg||(tover?'':'Turno de '+tp);$('#ts').textContent=`Marcador — X: ${sc.X} · O: ${sc.O} · Empates: ${sc.E}`}
+$('#tg').onclick=e=>{const i=e.target.dataset.i;if(i==null||TT[i]||tover)return;TT[i]=tp;
+  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  if(L.some(l=>l.every(k=>TT[k]===tp))){tover=1;sc[tp]++;rTT('¡Gana '+tp+'! 🎉')}
+  else if(TT.every(Boolean)){tover=1;sc.E++;rTT('Empate')}
+  else{tp=tp==='X'?'O':'X';rTT()}};
+
+/* ---------- Fuentes ---------- */
+const FN=[['Bricolage Grotesque','Letra: Normal'],['Patrick Hand','A mano'],['Fredoka','Redondeada'],['Lora','Con serifa'],['Bangers','Cómic'],['Space Mono','Máquina de escribir'],['Pacifico','Cursiva'],['Orbitron','Futurista']];
+$('#ft').innerHTML=FN.map(f=>`<option value="${f[0]}">${f[1]}</option>`).join('');
+function font(f){document.body.style.fontFamily=`'${f}',system-ui,sans-serif`;W('ft',f);$('#ft').value=f}
+$('#ft').onchange=e=>font(e.target.value);font(S('ft','Bricolage Grotesque'));
+
+/* ---------- Dibujitos ---------- */
+const DC={
+cl:['📚','✏️','⭐','📝'],
+pr:['🌸','🌷','🦋','🌼','🐝','🌱'],
+ve:['☀️','🏖️','🍦','🌴','🐚','🍉'],
+ot:['🍂','🍁','🎃','🌰','🍄','🦊'],
+in:['❄️','⛄','☃️','🧣','⭐','🎿'],
+sp:['🕷️','🕸️','🏙️','💥','⭐'],
+dp:['⚔️','💥','🔫','🌮','🦄','💀'],
+dd:['😈','⚖️','🔴','🥋','🌃','🦯'],
+bc:['🐈‍⬛','🐾','🌙','💎','✨','🖤'],
+im:['⚡','🤖','🔧','⭐','🚀','💥'],
+hk:['💪','💚','⚡','🧪','💥','🌿'],
+at:['🌅','✨','🌇','🕊️','🌸','⭐'],
+oc:['🌊','🐠','🐚','🫧','🐙','⚓'],
+au:['🌌','✨','🌠','🌙','🦌','❄️'],
+ch:['🍬','🦄','🌈','🍭','☁️','💖']};
+const WEB='<svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="1.2"><path d="M0 0H100M0 0L90 40M0 0L65 65M0 0L40 90M0 0V100M25 0Q22 22 0 25M50 0Q45 45 0 50M75 0Q68 68 0 75"/></svg>';
+function decorate(id){
+  const d=document.getElementById('dec')||document.body.appendChild(Object.assign(document.createElement('div'),{id:'dec'}));
+  const L=DC[id]||DC.cl;let h='';
+  for(let i=0;i<18;i++){
+    const side=i%2?'right':'left',x=Math.random()*14+1,y=Math.random()*88+2,sz=26+Math.random()*30;
+    h+=`<span style="${side}:${x}%;top:${y}%;font-size:${sz}px;animation-delay:-${(Math.random()*7).toFixed(1)}s">${L[i%L.length]}</span>`;
+  }
+  if(id==='sp')h+=WEB.replace('<svg','<svg style="left:0"')+WEB.replace('<svg','<svg style="right:0;transform:scaleX(-1)"');
+  d.innerHTML=h;$('#ti').textContent=L[0];
+}
+/* ---------- Temas ---------- */
+const K=['bg','ink','card','soft','soft2','line','acc','onacc','hi','onhi','head'];
+const TH={
+cl:['Clásico','#e8eef0','#14263a','#ffffff','#f1f5f6','#fffbe8','#cfd8dc','#14263a','#ffffff','#f5c518','#14263a','#14263a'],
+pr:['Primavera','linear-gradient(135deg,#ffe3ec,#e3f6d8)','#2d3b2d','#fffafc','#fff0f5','#e8f7df','#f2c6d6','#d6457d','#ffffff','#b9e87a','#2d3b2d','#2d3b2d'],
+ve:['Verano','linear-gradient(160deg,#fff1a8,#ffb36b 55%,#35c1d6)','#123b4a','#fffdf2','#fff4c9','#d7f4f7','#f1d98a','#0a7f96','#ffffff','#ff7a3d','#3a1500','#123b4a'],
+ot:['Otoño','linear-gradient(150deg,#f6d9a8,#d98a4a 60%,#8a3b1c)','#3b1f10','#fff6ea','#fbe6c8','#f4d2b0','#e2b98a','#a4411a','#ffffff','#f0b429','#3b1f10','#3b1f10'],
+in:['Invierno','linear-gradient(160deg,#e9f3ff,#b9d4f0 60%,#8fb0d6)','#12304f','#f8fbff','#e6f0fb','#d3e5f7','#b7cde4','#2a5d9f','#ffffff','#9fd0ff','#12304f','#12304f'],
+sp:['Spider-Man','linear-gradient(135deg,#b3001b,#1b2a6b)','#121a3a','#ffffff','#ffe9ec','#e4e9ff','#c9cfe8','#1b2a6b','#ffffff','#e4202e','#ffffff','#ffffff'],
+dp:['Deadpool','linear-gradient(135deg,#0d0d0d,#4a000c)','#f2f2f2','#1f1f1f','#2b2b2b','#3a1015','#4a4a4a','#d1112c','#ffffff','#d1112c','#ffffff','#ffffff'],
+dd:['Daredevil','linear-gradient(135deg,#1a0000,#8b0000 60%,#d41f1f)','#f6eaea','#1c1212','#271a1a','#331a1a','#4a2a2a','#c1121f','#ffffff','#e63946','#ffffff','#ffffff'],
+bc:['Black Cat','linear-gradient(160deg,#08080d,#2b1b3d)','#ececf5','#16141e','#211d2b','#2c2640','#3d3652','#d9dcee','#14121c','#b9a3ff','#14121c','#ffffff'],
+im:['Iron Man','linear-gradient(135deg,#6e0b14,#c8321e 50%,#f0b429)','#2b0d0d','#fff8ee','#fbe9d2','#fff1cf','#e6c79b','#8c1c13','#ffffff','#f0b429','#2b0d0d','#ffffff'],
+hk:['Hulk','linear-gradient(135deg,#1f5f2a,#4cae4f 50%,#6b3fa0)','#14281a','#f6fff4','#e2f5de','#ece3f7','#b9d9b4','#3e2a75','#ffffff','#7ed957','#14281a','#ffffff'],
+at:['Atardecer','linear-gradient(160deg,#ff9a8b,#ff6a88 45%,#6a5acd)','#3a1840','#fff7fb','#ffe6ef','#ece6ff','#f0bfd2','#7a2ea8','#ffffff','#ffd166','#3a1840','#ffffff'],
+oc:['Océano','linear-gradient(160deg,#0f4c81,#2aa7b8 60%,#9be7d8)','#0b2a40','#f4fcfd','#def3f6','#cdebe6','#a8d8dd','#0f4c81','#ffffff','#ffd36e','#0b2a40','#ffffff'],
+au:['Aurora','linear-gradient(135deg,#0d1b3d,#1f7a6d 50%,#7a4dd8)','#101a35','#f3f7fb','#e1f1ee','#e9e3fb','#bfd0e0','#1f7a6d','#ffffff','#8bf0c4','#101a35','#ffffff'],
+ch:['Chicle','linear-gradient(135deg,#ffc8dd,#cdb4db 50%,#a2d2ff)','#3a2a55','#fffafd','#ffeaf3','#eaf3ff','#dcc6e8','#8a4fc7','#ffffff','#ffafcc','#3a2a55','#3a2a55']};
+const GR=[['Estaciones',['pr','ve','ot','in']],['Marvel',['sp','dp','bc','dd','im','hk']],['Degradados',['at','oc','au','ch']]];
+$('#th').innerHTML='<option value="cl">Tema: Clásico</option>'+GR.map(g=>`<optgroup label="${g[0]}">`+g[1].map(k=>`<option value="${k}">${TH[k][0]}</option>`).join('')+'</optgroup>').join('');
+function theme(id){const t=TH[id]||TH.cl;K.forEach((k,i)=>document.documentElement.style.setProperty('--'+k,t[i+1]));decorate(id in TH?id:'cl');W('th',id);$('#th').value=id in TH?id:'cl'}
+$('#th').onchange=e=>theme(e.target.value);
+theme(S('th','cl'));
+
+/* ---------- Inicio ---------- */
+show(TABS.some(t=>t[0]===location.hash.slice(1))?location.hash.slice(1):'cl');
+</script>
+</body>
+</html>
